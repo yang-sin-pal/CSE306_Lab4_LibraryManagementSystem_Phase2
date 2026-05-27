@@ -90,7 +90,10 @@ namespace LibraryManagementSystem.Controllers
                 return NotFound("This book isn't exist in database. Try another id.");
             }
 
-            _context.Books.Remove(book);
+            
+            book.IsDeleted = true;
+            book.IsActive = false;
+
             await _context.SaveChangesAsync();
 
             return Ok("This book is deleted successfully.");
