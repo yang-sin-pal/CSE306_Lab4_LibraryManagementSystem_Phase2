@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Models;
+﻿using LibraryManagementSystem.DTO;
+using LibraryManagementSystem.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,9 +11,12 @@ namespace LibraryManagementSystem.Controllers
     {
         private readonly LibraryManagementDbContext _context;
 
-        public BooksController(LibraryManagementDbContext context)
+        private readonly IWebHostEnvironment _environment;
+
+        public BooksController(LibraryManagementDbContext context, IWebHostEnvironment environment)
         {
             _context = context;
+            _environment = environment;
         }
 
         [HttpGet]
@@ -68,8 +72,56 @@ namespace LibraryManagementSystem.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add(Book newBook)
+        public async Task<IActionResult> Add([FromForm] BookCreateDto dto)
         {
+            // Save images
+            string? imagePath = null;
+
+            if (dto.ImageFile != null)
+            {
+                var imageName =
+                    Guid.NewGuid().ToString()
+                    + Path.GetExtension(dto.ImageFile.FileName);
+
+                var fullPath =
+                    Path.Combine(
+                        _environment.WebRootPath,
+                        "book_images",
+                        imageName);
+
+                using var stream =
+                    new FileStream(fullPath, FileMode.Create);
+
+                await dto.ImageFile.CopyToAsync(stream);
+
+                imagePath =
+                    "/book_images/" + imageName;
+            }
+
+
+            // Save pdfs
+            string? pdfPath = null;
+
+            if (dto.PdfFile != null)
+            {
+                var pdfName =
+                    Guid.NewGuid().ToString()
+                    + Path.GetExtension(dto.PdfFile.FileName);
+
+                var fullPath =
+                    Path.Combine(
+                        _environment.WebRootPath,
+                        "book_pdfs",
+                        pdfName);
+
+                using var stream =
+                    new FileStream(fullPath, FileMode.Create);
+
+                await dto.PdfFile.CopyToAsync(stream);
+
+                pdfPath =
+                    "/book_pdfs/" + pdfName;
+            }
             _context.Books.Add(newBook);
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetById), new { id = newBook.BookId }, newBook);
