@@ -56,6 +56,7 @@ namespace LibraryManagementSystem.Controllers
         public async Task<IActionResult> GetById(int id)
         {
             var book = await _context.Books
+                .Where(b => !b.IsDeleted)
                 .Include(b => b.Category)
                 .Include(b => b.Author)
                 .FirstOrDefaultAsync(b => b.BookId == id);
@@ -239,15 +240,17 @@ namespace LibraryManagementSystem.Controllers
                     "/book_pdfs/" + pdfName;
             }
 
-            willChangeBook.Title = neededBook.Title;
-            willChangeBook.Description = neededBook.Description;
-            willChangeBook.BookCode = neededBook.BookCode;
-            willChangeBook.Publisher = neededBook.Publisher;
-            willChangeBook.PublishedYear = neededBook.PublishedYear;
-            willChangeBook.TotalCopies = neededBook.TotalCopies;
-            willChangeBook.AvailableCopies = neededBook.AvailableCopies;
-            willChangeBook.Avatar = neededBook.Avatar;
-            willChangeBook.Pdf = neededBook.Pdf;
+            willChangeBook.Title = dto.Title;
+            willChangeBook.Description = dto.Description;
+            willChangeBook.BookCode = dto.BookCode;
+            willChangeBook.Publisher = dto.Publisher;
+            willChangeBook.PublishedYear = dto.PublishedYear;
+
+            willChangeBook.AuthorId = dto.AuthorId;
+            willChangeBook.CategoryId = dto.CategoryId;
+
+            willChangeBook.TotalCopies = dto.TotalCopies;
+            willChangeBook.AvailableCopies = dto.AvailableCopies;
 
             await _context.SaveChangesAsync();
 
