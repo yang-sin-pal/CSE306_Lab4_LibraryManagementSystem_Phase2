@@ -24,7 +24,7 @@ public partial class LibraryManagementDbContext : DbContext
     public virtual DbSet<Loan> Loans { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
-    public virtual DbSet<Carousel> Carousel { get; set; }
+    public virtual DbSet<Carousel> Carousels { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -121,6 +121,8 @@ public partial class LibraryManagementDbContext : DbContext
 
         modelBuilder.Entity<Carousel>(entity =>
         {
+            entity.ToTable("Carousel");
+
             entity.HasKey(e => e.CarouselId);
 
             entity.Property(e => e.Title).HasMaxLength(200);

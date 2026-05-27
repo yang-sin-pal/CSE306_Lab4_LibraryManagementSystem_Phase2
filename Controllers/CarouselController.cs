@@ -18,13 +18,13 @@ namespace LibraryManagementSystem.Controllers
         [HttpGet]
         public async Task<ActionResult<List<Carousel>>> GetAll()
         {
-            return await _context.Carousel.OrderBy(x => x.Order).ToListAsync();
+            return await _context.Carousels.OrderBy(x => x.Order).ToListAsync();
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult> GetById(int id)
         {
-            var carousel = await _context.Carousel.FindAsync(id);
+            var carousel = await _context.Carousels.FindAsync(id);
             if (carousel == null)
             {
                 return NotFound("This carousel isn't exist in database. Try another id.");
