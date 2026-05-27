@@ -75,10 +75,26 @@ namespace LibraryManagementSystem.Controllers
                     "/author_avatars/" + avatarName;
             }
 
+            var newAuthor = new Author
+            {
+                FirstName = dto.FirstName,
+                LastName = dto.LastName,
+                DateOfBirth = dto.DateOfBirth,
+                Biography = dto.Biography,
+                Nationality = dto.Nationality,
+                Email = dto.Email,
+                Website = dto.Website,
 
-            _context.Authors.Add(dto);
+                Avatar = avatarPath,
+
+                CreatedDate = DateTime.Now,
+                IsActive = true
+            };
+
+
+            _context.Authors.Add(newAuthor);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetById), new { id = dto.AuthorId }, dto);
+            return CreatedAtAction(nameof(GetById), new { id = newAuthor.AuthorId }, newAuthor);
         }
 
         [HttpPut("{id}")]
