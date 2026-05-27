@@ -1,5 +1,4 @@
-﻿using LibraryManagementSystem.DTO;
-using LibraryManagementSystem.DTOs;
+﻿using LibraryManagementSystem.DTOs;
 using LibraryManagementSystem.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

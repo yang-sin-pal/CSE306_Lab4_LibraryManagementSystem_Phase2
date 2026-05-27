@@ -1,6 +1,7 @@
 ﻿using LibraryManagementSystem.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using LibraryManagementSystem.DTOs;
 
 namespace LibraryManagementSystem.Controllers
 {
@@ -102,7 +103,7 @@ namespace LibraryManagementSystem.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(int id, [FromForm] AuthorUpdateDto dto)
+        public async Task<IActionResult> UpdateById(int id, [FromForm]AuthorUpdateDto dto)
         {
             if (id != dto.AuthorId)
             {
