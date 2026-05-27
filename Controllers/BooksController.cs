@@ -16,9 +16,35 @@ namespace LibraryManagementSystem.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<Book>>> GetAll()
+        public async Task<ActionResult<List<Book>>> GetAll(string? search, int? categoryId, int? authorId,int page = 1, int pageSize = 10)
         {
-            return await _context.Books.ToListAsync();
+            var query = _context.Books
+                .Where(b => !b.IsDeleted)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(b => b.Title.Contains(search));
+            }
+
+            if (categoryId.HasValue)
+            {
+                query = query.Where(b => b.CategoryId == categoryId)
+                    .Include(b => b.Category);
+            }
+
+            if (authorId.HasValue)
+            {
+                query = query.Where(b => b.AuthorId == authorId)
+                    .Include(b => b.Author);
+            }
+
+            var books = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return Ok(books);
         }
 
         [HttpGet("{id}")]
