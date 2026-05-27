@@ -72,6 +72,30 @@ namespace LibraryManagementSystem.Controllers
             });
         }
 
+        [HttpGet("{id}/read")]
+        public async Task<IActionResult> ReadBook(int id)
+        {
+            var book = await _context.Books.FindAsync(id);
+
+            if (book == null)
+            {
+                return NotFound("Book not found.");
+            }
+
+            if (string.IsNullOrWhiteSpace(book.Pdf))
+            {
+                return NotFound("This book does not have a PDF file.");
+            }
+
+            var pdfUrl = $"{Request.Scheme}://{Request.Host}{book.Pdf}";
+
+            return Ok(new
+            {
+                message = "PDF found.",
+                pdfUrl
+            });
+        }
+
         [HttpPost]
         public async Task<IActionResult> Add([FromForm] BookCreateDto dto)
         {
