@@ -16,9 +16,16 @@ namespace LibraryManagementSystem.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<Author>>> GetAll()
+        public async Task<ActionResult<List<Author>>> GetAll(string? name)
         {
-            return await _context.Authors.ToListAsync();
+            var query = _context.Authors.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                query = query.Where(a => a.LastName.Contains(name));
+            }
+
+            return await query.ToListAsync();
         }
 
         [HttpGet("{id}")]
@@ -82,7 +89,8 @@ namespace LibraryManagementSystem.Controllers
                 return NotFound("This author isn't exist in database. Try another id.");
             }
 
-            _context.Authors.Remove(author);
+            author.IsActive = false;
+
             await _context.SaveChangesAsync();
 
             return Ok("This author is deleted successfully.");
