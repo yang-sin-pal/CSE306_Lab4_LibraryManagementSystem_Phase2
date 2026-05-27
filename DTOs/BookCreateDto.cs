@@ -1,7 +1,7 @@
 ﻿
 using System.ComponentModel.DataAnnotations;
 
-namespace LibraryManagementSystem.DTO
+namespace LibraryManagementSystem.DTOs
 {
     public class BookCreateDto
     {

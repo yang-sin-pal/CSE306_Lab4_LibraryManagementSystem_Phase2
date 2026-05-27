@@ -117,8 +117,7 @@ namespace LibraryManagementSystem.Controllers
             willChangeLoan.ReturnDate = DateTime.Now;
             willChangeLoan.Status = 1; // 1 means returned
             
-            var book = await _context.Books.FindAsync(willChangeLoan.BookId);
-            book.AvailableCopies++; // Return a book mean availabel copies + 1
+            willChangeLoan.Book.AvailableCopies++; // Return a book mean availabel copies + 1
 
             await _context.SaveChangesAsync();
 

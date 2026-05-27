@@ -25,6 +25,8 @@
     <Folder Include="wwwroot\book_images\" />
     <Folder Include="wwwroot\book_pdfs\" />
     <Folder Include="wwwroot\author_avatars\" />
+    <Folder Include="wwwroot\category_avatars\" />
+    <Folder Include="wwwroot\user_avatars\" />
   </ItemGroup>
 
 </Project>
