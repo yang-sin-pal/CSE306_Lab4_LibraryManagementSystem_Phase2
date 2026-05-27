@@ -96,8 +96,16 @@ namespace LibraryManagementSystem.Controllers
             });
         }
 
+        [HttpGet("deleted")]
+        public async Task<ActionResult<List<Book>>> GetDeletedBooks()
+        {
+            return await _context.Books
+                .Where(b => b.IsDeleted)
+                .ToListAsync();
+        }
+
         [HttpPost]
-        public async Task<IActionResult> Add([FromForm] BookCreateDto dto)
+        public async Task<IActionResult> Add([FromForm]BookCreateDto dto)
         {
             // Save images
             string? imagePath = null;
@@ -284,7 +292,34 @@ namespace LibraryManagementSystem.Controllers
             });
         }
 
-        [HttpDelete("{id}")]
+        [HttpPatch("{id}/restore")]
+        public async Task<IActionResult> RestoreBook(int id)
+        {
+            var book = await _context.Books.FindAsync(id);
+
+            if (book == null)
+            {
+                return NotFound("Book not found.");
+            }
+
+            if (!book.IsDeleted)
+            {
+                return BadRequest("This book is not deleted.");
+            }
+
+            book.IsDeleted = false;
+            book.IsActive = true;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                message = "Book restored successfully.",
+                data = book
+            });
+        }
+
+        [HttpDelete("{id}/soft")]
         public async Task<IActionResult> DeleteById(int id)
         {
             var book = await _context.Books.FindAsync(id);
@@ -301,6 +336,52 @@ namespace LibraryManagementSystem.Controllers
             await _context.SaveChangesAsync();
 
             return Ok("This book is deleted successfully.");
+        }
+
+        [HttpDelete("{id}/hard")]
+        public async Task<IActionResult> HardDeleteBook(int id)
+        {
+            var book = await _context.Books.FindAsync(id);
+
+            if (book == null)
+            {
+                return NotFound("Book not found.");
+            }
+
+            // Delete avatar file
+            if (!string.IsNullOrWhiteSpace(book.Avatar))
+            {
+                var avatarPath = Path.Combine(
+                    _environment.WebRootPath,
+                    book.Avatar.TrimStart('/'));
+
+                if (System.IO.File.Exists(avatarPath))
+                {
+                    System.IO.File.Delete(avatarPath);
+                }
+            }
+
+            // Delete PDF file
+            if (!string.IsNullOrWhiteSpace(book.Pdf))
+            {
+                var pdfPath = Path.Combine(
+                    _environment.WebRootPath,
+                    book.Pdf.TrimStart('/'));
+
+                if (System.IO.File.Exists(pdfPath))
+                {
+                    System.IO.File.Delete(pdfPath);
+                }
+            }
+
+            _context.Books.Remove(book);
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                message = "Book permanently deleted."
+            });
         }
 
     }
