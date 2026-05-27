@@ -6,11 +6,11 @@ namespace LibraryManagementSystem.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class CarouselController : ControllerBase
+    public class CarouselsController : ControllerBase
     {
         private readonly LibraryManagementDbContext _context;
 
-        public CarouselController(LibraryManagementDbContext context)
+        public CarouselsController(LibraryManagementDbContext context)
         {
             _context = context;
         }
@@ -39,11 +39,11 @@ namespace LibraryManagementSystem.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add(Carousel carousel)
+        public async Task<IActionResult> Add(Carousel newCarousel)
         {
-            _context.Carousels.Add(carousel);
+            _context.Carousels.Add(newCarousel);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetById), new { id = carousel.CarouselId }, carousel);
+            return CreatedAtAction(nameof(GetById), new { id = newCarousel.CarouselId }, newCarousel);
         }
 
         [HttpPut("{id}")]

@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using LibraryManagementSystem.Models;
+﻿using LibraryManagementSystem.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace LibraryManagementSystem.Controllers
 {
@@ -7,84 +8,93 @@ namespace LibraryManagementSystem.Controllers
     [Route("api/[Controller]")]
     public class BooksController : ControllerBase
     {
-        //static List<Book> Books = new List<Book>
-        //{
-        //    new Book { Id = 1, Title = "The Great Gatsby", Author = "F. Scott Fitzgerald", Year = 1925, Genre = "Novel" },
-        //    new Book { Id = 2, Title = "To Kill a Mockingbird", Author = "Harper Lee", Year = 1960, Genre = "Novel" },
-        //    new Book { Id = 3, Title = "1984", Author = "George Orwell", Year = 1949, Genre = "Dystopian" }
-        //};
+        private readonly LibraryManagementDbContext _context;
 
-        //[HttpGet]
-        //public ActionResult<List<Book>> GetAllBooks()
-        //{
-        //    return Books;
-        //}
+        public BooksController(LibraryManagementDbContext context)
+        {
+            _context = context;
+        }
 
-        //[HttpGet("{id}")]
-        //public ActionResult<Book> tBookById(int id)
-        //{ 
-        //    var Book = Books.FirstOrDefault(x => x.Id == id);
+        [HttpGet]
+        public async Task<ActionResult<List<Book>>> GetAll()
+        {
+            return await _context.Books.ToListAsync();
+        }
 
-        //    if (Book != null)
-        //    {
-        //        return Book;
-        //    }
-        //    else
-        //    {
-        //        return NotFound("Book not found");
-        //    }
-        //}
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var book = await _context.Books.FindAsync(id);
 
-        //[HttpPost]
-        //public ActionResult<Book> AddBook([FromBody]Book newBook)
-        //{
-        //    if (newBook.Id != Books.Max(x => x.Id + 1))
-        //    {
-        //        return BadRequest("The id of this new book must larger than the max id in the list 1 unit. " +
-        //                            "Example, if the largest id is 3 then the id of this new book is 4 (3 + 1)." +
-        //                            " Use GET /api/Books to know the lagrest id.");   
-        //    }
-        //    else
-        //    {
-        //        Books.Add(newBook);
-        //        return newBook;
-        //    }
+            if (book == null)
+            {
+                return NotFound("This book isn't exist in database. Try another id.");
+            }
 
+            return Ok(new
+            {
+                message = "Found it!",
+                data = book
+            });
+        }
 
-        //}
+        [HttpPost]
+        public async Task<IActionResult> Add(Book newBook)
+        {
+            _context.Books.Add(newBook);
+            await _context.SaveChangesAsync();
+            return CreatedAtAction(nameof(GetById), new { id = newBook.BookId }, newBook);
+        }
 
-        //[HttpPut("{id}")]
-        //public ActionResult<Book> UpdateBook(int id, Book updateBook)
-        //{
-        //    var needUpdateBook = Books.FirstOrDefault(x => x.Id == id);
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateById(int id, Book neededBook)
+        {
+            if (id != neededBook.BookId)
+            {
+                return BadRequest("Id is not the same!");
+            }
 
-        //    if (needUpdateBook == null)
-        //    {
-        //        return NotFound("Book not found");
-        //    }
+            var willChangeBook = await _context.Books.FindAsync(id);
 
-        //    needUpdateBook.Author = updateBook.Author;
-        //    needUpdateBook.Title = updateBook.Title;
-        //    needUpdateBook.Year = updateBook.Year;
-        //    needUpdateBook.Genre = updateBook.Genre;
+            if (willChangeBook == null)
+            {
+                return NotFound("This book isn't exist in database. Try another id.");
+            }
 
-        //    return needUpdateBook;
-        //}
+            willChangeBook.Title = neededBook.Title;
+            willChangeBook.Description = neededBook.Description;
+            willChangeBook.BookCode = neededBook.BookCode;
+            willChangeBook.Publisher = neededBook.Publisher;
+            willChangeBook.PublishedYear = neededBook.PublishedYear;
+            willChangeBook.TotalCopies = neededBook.TotalCopies;
+            willChangeBook.AvailableCopies = neededBook.AvailableCopies;
+            willChangeBook.Avatar = neededBook.Avatar;
+            willChangeBook.Pdf = neededBook.Pdf;
 
-        //[HttpDelete("{id}")]
-        //public IActionResult DeleteBook(int id)
-        //{
-        //    var wantedBook = Books.FirstOrDefault(x => x.Id == id);
+            await _context.SaveChangesAsync();
 
-        //    if (wantedBook == null)
-        //    {
-        //        return NotFound("Book not found");
-        //    }
+            return Ok(new
+            {
+                message = "This book is updated successfully",
+                data = willChangeBook
+            });
+        }
 
-        //    Books.Remove(wantedBook);
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteById(int id)
+        {
+            var book = await _context.Books.FindAsync(id);
 
-        //    return NoContent();
-        //}
+            if (book == null)
+            {
+                return NotFound("This book isn't exist in database. Try another id.");
+            }
+
+            _context.Books.Remove(book);
+            await _context.SaveChangesAsync();
+
+            return Ok("This book is deleted successfully.");
+        }
 
     }
 }
