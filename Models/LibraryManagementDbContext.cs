@@ -24,6 +24,7 @@ public partial class LibraryManagementDbContext : DbContext
     public virtual DbSet<Loan> Loans { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
+    public virtual DbSet<Carousel> Carousel { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -116,6 +117,18 @@ public partial class LibraryManagementDbContext : DbContext
             entity.Property(e => e.Phone).HasMaxLength(20);
             entity.Property(e => e.Status).HasDefaultValue(1);
             entity.Property(e => e.UserCode).HasMaxLength(200);
+        });
+
+        modelBuilder.Entity<Carousel>(entity =>
+        {
+            entity.HasKey(e => e.CarouselId);
+
+            entity.Property(e => e.Title).HasMaxLength(200);
+
+            entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+
+            entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
+
         });
 
         OnModelCreatingPartial(modelBuilder);
