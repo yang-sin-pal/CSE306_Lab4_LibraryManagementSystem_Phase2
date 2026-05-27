@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace LibraryManagementSystem.Models;
 
@@ -7,14 +6,21 @@ public partial class User
 {
     public int UserId { get; set; }
 
+    [Required]
+    [StringLength(200)]
     public string Fullname { get; set; } = null!;
 
     public string? Description { get; set; }
 
+    [Required]
     public string Password { get; set; } = null!;
 
+    [Required]
+    [EmailAddress]
+    [StringLength(200)]
     public string Email { get; set; } = null!;
 
+    [StringLength(20)]
     public string? Phone { get; set; }
 
     public string? Address { get; set; }

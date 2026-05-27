@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace LibraryManagementSystem.Models;
 
@@ -7,6 +6,8 @@ public partial class Category
 {
     public int CategoryId { get; set; }
 
+    [Required]
+    [StringLength(200)]
     public string Name { get; set; } = null!;
 
     public string? Description { get; set; }

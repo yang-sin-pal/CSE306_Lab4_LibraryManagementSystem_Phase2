@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace LibraryManagementSystem.Models;
 
@@ -7,6 +8,8 @@ public partial class Book
 {
     public int BookId { get; set; }
 
+    [Required]
+    [StringLength(200)]
     public string Title { get; set; } = null!;
 
     public string? Description { get; set; }
@@ -21,8 +24,10 @@ public partial class Book
 
     public int AuthorId { get; set; }
 
+    [Range(0, int.MaxValue)]
     public int TotalCopies { get; set; }
 
+    [Range(0, int.MaxValue)]
     public int AvailableCopies { get; set; }
 
     public DateTime CreatedDate { get; set; }
