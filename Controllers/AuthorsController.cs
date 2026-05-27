@@ -49,11 +49,36 @@ namespace LibraryManagementSystem.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add(Author newAuthor)
+        public async Task<IActionResult> Add([FromForm]AuthorCreateDto dto)
         {
-            _context.Authors.Add(newAuthor);
+            //save avatar
+            string? avatarPath = null;
+
+            if (dto.AvatarFile != null)
+            {
+                var avatarName =
+                    Guid.NewGuid()
+                    + Path.GetExtension(dto.AvatarFile.FileName);
+
+                var fullPath =
+                    Path.Combine(
+                        _environment.WebRootPath,
+                        "author_avatars",
+                        avatarName);
+
+                using var stream =
+                    new FileStream(fullPath, FileMode.Create);
+
+                await dto.AvatarFile.CopyToAsync(stream);
+
+                avatarPath =
+                    "/author_avatars/" + avatarName;
+            }
+
+
+            _context.Authors.Add(dto);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetById), new { id = newAuthor.AuthorId }, newAuthor);
+            return CreatedAtAction(nameof(GetById), new { id = dto.AuthorId }, dto);
         }
 
         [HttpPut("{id}")]
