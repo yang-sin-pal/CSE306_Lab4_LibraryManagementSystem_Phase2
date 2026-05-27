@@ -122,8 +122,34 @@ namespace LibraryManagementSystem.Controllers
                 pdfPath =
                     "/book_pdfs/" + pdfName;
             }
+
+            var newBook = new Book
+            {
+                Title = dto.Title,
+                Description = dto.Description,
+                BookCode = dto.BookCode,
+                Publisher = dto.Publisher,
+                PublishedYear = dto.PublishedYear,
+
+                CategoryId = dto.CategoryId,
+                AuthorId = dto.AuthorId,
+
+                TotalCopies = dto.TotalCopies,
+                AvailableCopies = dto.AvailableCopies,
+
+                Avatar = imagePath,
+                Pdf = pdfPath,
+
+                CreatedDate = DateTime.Now,
+
+                IsDeleted = false,
+                IsActive = true
+            };
+
             _context.Books.Add(newBook);
+
             await _context.SaveChangesAsync();
+
             return CreatedAtAction(nameof(GetById), new { id = newBook.BookId }, newBook);
         }
 
