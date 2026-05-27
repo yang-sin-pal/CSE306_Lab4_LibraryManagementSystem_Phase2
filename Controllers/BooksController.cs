@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem.DTO;
+using LibraryManagementSystem.DTOs;
 using LibraryManagementSystem.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -154,9 +155,9 @@ namespace LibraryManagementSystem.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(int id, Book neededBook)
+        public async Task<IActionResult> UpdateById(int id, [FromForm] BookUpdateDto dto)
         {
-            if (id != neededBook.BookId)
+            if (id != dto.BookId)
             {
                 return BadRequest("Id is not the same!");
             }
@@ -166,6 +167,76 @@ namespace LibraryManagementSystem.Controllers
             if (willChangeBook == null)
             {
                 return NotFound("This book isn't exist in database. Try another id.");
+            }
+
+            // Replace image
+            if (dto.ImageFile != null)
+            {
+                if (!string.IsNullOrEmpty(willChangeBook.Avatar))
+                {
+                    var oldImagePath =
+                        Path.Combine(
+                            _environment.WebRootPath,
+                            willChangeBook.Avatar.TrimStart('/'));
+
+                    if (System.IO.File.Exists(oldImagePath))
+                    {
+                        System.IO.File.Delete(oldImagePath);
+                    }
+                }
+
+                var imageName =
+                    Guid.NewGuid() +
+                    Path.GetExtension(dto.ImageFile.FileName);
+
+                var newImagePath =
+                    Path.Combine(
+                        _environment.WebRootPath,
+                        "book_images",
+                        imageName);
+
+                using var stream =
+                    new FileStream(newImagePath, FileMode.Create);
+
+                await dto.ImageFile.CopyToAsync(stream);
+
+                willChangeBook.Avatar =
+                    "/book_images/" + imageName;
+            }
+
+            //Replace pdf
+            if (dto.PdfFile != null)
+            {
+                if (!string.IsNullOrEmpty(willChangeBook.Pdf))
+                {
+                    var oldPdfPath =
+                        Path.Combine(
+                            _environment.WebRootPath,
+                            willChangeBook.Pdf.TrimStart('/'));
+
+                    if (System.IO.File.Exists(oldPdfPath))
+                    {
+                        System.IO.File.Delete(oldPdfPath);
+                    }
+                }
+
+                var pdfName =
+                    Guid.NewGuid() +
+                    Path.GetExtension(dto.PdfFile.FileName);
+
+                var newPdfPath =
+                    Path.Combine(
+                        _environment.WebRootPath,
+                        "book_pdfs",
+                        pdfName);
+
+                using var stream =
+                    new FileStream(newPdfPath, FileMode.Create);
+
+                await dto.PdfFile.CopyToAsync(stream);
+
+                willChangeBook.Pdf =
+                    "/book_pdfs/" + pdfName;
             }
 
             willChangeBook.Title = neededBook.Title;
