@@ -1,11 +1,9 @@
-﻿
-using System.ComponentModel.DataAnnotations;
-
-namespace LibraryManagementSystem.DTO
+﻿namespace LibraryManagementSystem.DTOs
 {
-    public class BookCreateDto
+    public class BookUpdateDto
     {
-        [Required]
+        public int BookId { get; set; }
+
         public string Title { get; set; } = null!;
 
         public string? Description { get; set; }
@@ -16,11 +14,9 @@ namespace LibraryManagementSystem.DTO
 
         public DateTime? PublishedYear { get; set; }
 
-        [Required]
-        public int AuthorId { get; set; }
-
-        [Required]
         public int CategoryId { get; set; }
+
+        public int AuthorId { get; set; }
 
         public int TotalCopies { get; set; }
 
