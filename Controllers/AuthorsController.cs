@@ -34,7 +34,9 @@ namespace LibraryManagementSystem.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var author = await _context.Authors.FindAsync(id);
+            var author = await _context.Authors
+                .Include(a => a.Books)
+                .FirstOrDefaultAsync(a => a.AuthorId == id);
 
             if (author == null)
             {
@@ -93,14 +95,16 @@ namespace LibraryManagementSystem.Controllers
 
 
             _context.Authors.Add(newAuthor);
+
             await _context.SaveChangesAsync();
+
             return CreatedAtAction(nameof(GetById), new { id = newAuthor.AuthorId }, newAuthor);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(int id, Author neededAuthor)
+        public async Task<IActionResult> UpdateById(int id, [FromForm] AuthorUpdateDto dto)
         {
-            if (id != neededAuthor.AuthorId)
+            if (id != dto.AuthorId)
             {
                 return BadRequest("Id is not the same!");
             }
@@ -112,12 +116,47 @@ namespace LibraryManagementSystem.Controllers
                 return NotFound("This author isn't exist in database. Try another id.");
             }
 
-            willChangeAuthor.FirstName = neededAuthor.FirstName;
-            willChangeAuthor.LastName = neededAuthor.LastName;   
-            willChangeAuthor.DateOfBirth = neededAuthor.DateOfBirth;
-            willChangeAuthor.Biography = neededAuthor.Biography;
-            willChangeAuthor.Nationality = neededAuthor.Nationality;
-            willChangeAuthor.Avatar = neededAuthor.Avatar;
+            if (dto.AvatarFile != null)
+            {
+                if (!string.IsNullOrEmpty(willChangeAuthor.Avatar))
+                {
+                    var oldAvatarPath =
+                        Path.Combine(
+                            _environment.WebRootPath,
+                            willChangeAuthor.Avatar.TrimStart('/'));
+
+                    if (System.IO.File.Exists(oldAvatarPath))
+                    {
+                        System.IO.File.Delete(oldAvatarPath);
+                    }
+                }
+
+                var imageName =
+                    Guid.NewGuid() +
+                    Path.GetExtension(dto.AvatarFile.FileName);
+
+                var newImagePath =
+                    Path.Combine(
+                        _environment.WebRootPath,
+                        "author_avatars",
+                        imageName);
+
+                using var stream =
+                    new FileStream(newImagePath, FileMode.Create);
+
+                await dto.AvatarFile.CopyToAsync(stream);
+
+                willChangeAuthor.Avatar =
+                    "/author_avatars/" + imageName;
+            }
+
+            willChangeAuthor.FirstName = dto.FirstName;
+            willChangeAuthor.LastName = dto.LastName;
+            willChangeAuthor.DateOfBirth = dto.DateOfBirth;
+            willChangeAuthor.Biography = dto.Biography;
+            willChangeAuthor.Nationality = dto.Nationality;
+            willChangeAuthor.Email = dto.Email;
+            willChangeAuthor.Website = dto.Website;
 
             await _context.SaveChangesAsync();
 
