@@ -22,7 +22,8 @@ namespace LibraryManagementSystem.Controllers
 
             if (!string.IsNullOrWhiteSpace(name))
             {
-                query = query.Where(a => a.LastName.Contains(name));
+                query = query.Where(a =>
+                     (a.FirstName + " " + a.LastName).Contains(name));
             }
 
             return await query.ToListAsync();
@@ -54,7 +55,7 @@ namespace LibraryManagementSystem.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(int id, Book neededAuthor)
+        public async Task<IActionResult> UpdateById(int id, Author neededAuthor)
         {
             if (id != neededAuthor.AuthorId)
             {
@@ -68,7 +69,12 @@ namespace LibraryManagementSystem.Controllers
                 return NotFound("This author isn't exist in database. Try another id.");
             }
 
-            //////////
+            willChangeAuthor.FirstName = neededAuthor.FirstName;
+            willChangeAuthor.LastName = neededAuthor.LastName;   
+            willChangeAuthor.DateOfBirth = neededAuthor.DateOfBirth;
+            willChangeAuthor.Biography = neededAuthor.Biography;
+            willChangeAuthor.Nationality = neededAuthor.Nationality;
+            willChangeAuthor.Avatar = neededAuthor.Avatar;
 
             await _context.SaveChangesAsync();
 

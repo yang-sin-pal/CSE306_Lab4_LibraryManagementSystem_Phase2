@@ -23,6 +23,7 @@
     <Folder Include="wwwroot\carousel_images\" />
     <Folder Include="wwwroot\book_images\" />
     <Folder Include="wwwroot\book_pdfs\" />
+    <Folder Include="wwwroot\author_avatars\" />
   </ItemGroup>
 
 </Project>
