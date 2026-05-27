@@ -17,9 +17,21 @@ namespace LibraryManagementSystem.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<Category>>> GetAll()
+        public async Task<ActionResult<List<Category>>> GetAll(bool? isActive,string? name)
         {
-            return await _context.Categories.ToListAsync();
+            var query = _context.Categories.AsQueryable();
+
+            if (isActive.HasValue)
+            {
+                query = query.Where(c => c.IsActive == isActive);
+            }
+
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                query = query.Where(c => c.Name.Contains(name));
+            }
+
+            return await query.ToListAsync();
         }
 
         [HttpGet("{id}")]
@@ -29,22 +41,27 @@ namespace LibraryManagementSystem.Controllers
 
             if (category == null)
             {
-                return NotFound("This category isn't exist in database. Try another id.");
+                return NotFound("Category not found.");
             }
-            
-            return Ok(new
-            {
-                message = "Found it!",
-                data = category
-            });
+
+            return Ok(category);
         }
 
         [HttpPost]
         public async Task<IActionResult> Add(Category newCategory)
         {
+            newCategory.CreatedDate = DateTime.Now;
+
+            newCategory.IsActive = true;
+
             _context.Categories.Add(newCategory);
+
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetById), new { id = newCategory.CategoryId }, newCategory);
+
+            return CreatedAtAction(
+                nameof(GetById),
+                new { id = newCategory.CategoryId },
+                newCategory);
         }
 
         [HttpPut("{id}")]
@@ -62,7 +79,13 @@ namespace LibraryManagementSystem.Controllers
                 return NotFound("This category isn't exist in database. Try another id.");
             }
 
-            //////////
+            willChangeCategory.Name = neededCategory.Name;
+
+            willChangeCategory.Description = neededCategory.Description;
+
+            willChangeCategory.Avatar = neededCategory.Avatar;
+
+            willChangeCategory.UpdatedDate = DateTime.Now;
 
             await _context.SaveChangesAsync();
 
@@ -70,6 +93,29 @@ namespace LibraryManagementSystem.Controllers
             {
                 message = "This category is updated successfully",
                 data = willChangeCategory
+            });
+        }
+
+        [HttpPatch("{id}/toggle")]
+        public async Task<IActionResult> ToggleStatus(int id)
+        {
+            var category = await _context.Categories.FindAsync(id);
+
+            if (category == null)
+            {
+                return NotFound("Category not found.");
+            }
+
+            category.IsActive = !category.IsActive;
+
+            category.UpdatedDate = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                message = "Category status updated successfully.",
+                isActive = category.IsActive
             });
         }
     }
