@@ -9,10 +9,12 @@ namespace LibraryManagementSystem.Controllers
     public class AuthorsController : ControllerBase
     {
         private readonly LibraryManagementDbContext _context;
+        private readonly IWebHostEnvironment _environment;
 
-        public AuthorsController(LibraryManagementDbContext context)
+        public AuthorsController(LibraryManagementDbContext context, IWebHostEnvironment environment)
         {
             _context = context;
+            _environment = environment;
         }
 
         [HttpGet]
