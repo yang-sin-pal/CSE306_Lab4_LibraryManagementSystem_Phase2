@@ -6,6 +6,7 @@ namespace LibraryManagementSystem.Models;
 
 public partial class Book
 {
+    [Key]
     public int BookId { get; set; }
 
     [Required]

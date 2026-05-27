@@ -4,6 +4,7 @@ namespace LibraryManagementSystem.Models;
 
 public partial class Category
 {
+    [Key]
     public int CategoryId { get; set; }
 
     [Required]

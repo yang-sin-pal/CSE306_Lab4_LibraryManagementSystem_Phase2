@@ -6,6 +6,7 @@ namespace LibraryManagementSystem.Models;
 
 public partial class Loan
 {
+    [Key]
     public int LoanId { get; set; }
 
     [Required]

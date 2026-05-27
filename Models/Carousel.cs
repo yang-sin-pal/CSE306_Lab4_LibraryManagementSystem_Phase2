@@ -11,10 +11,11 @@ namespace LibraryManagementSystem.Models
         public string ImageUrl { get; set; } = null!;
 
         [Required]
+        [StringLength(200)]
         public string Title { get; set; } = null!;
-        public string Description { get; set; } = null!;
+        public string? Description { get; set; }
 
-        public string LinkUrl { get; set; } = null!;
+        public string? LinkUrl { get; set; }
 
         [Required]
         public int Order { get; set; }

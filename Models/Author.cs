@@ -4,6 +4,7 @@ namespace LibraryManagementSystem.Models;
 
 public partial class Author
 {
+    [Key]
     public int AuthorId { get; set; }
     
     [Required]

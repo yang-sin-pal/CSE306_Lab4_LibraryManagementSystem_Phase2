@@ -4,6 +4,7 @@ namespace LibraryManagementSystem.Models;
 
 public partial class User
 {
+    [Key]
     public int UserId { get; set; }
 
     [Required]
