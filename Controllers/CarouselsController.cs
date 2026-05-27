@@ -9,16 +9,18 @@ namespace LibraryManagementSystem.Controllers
     public class CarouselsController : ControllerBase
     {
         private readonly LibraryManagementDbContext _context;
+        private readonly IWebHostEnvironment _environment;
 
-        public CarouselsController(LibraryManagementDbContext context)
+        public CarouselsController(LibraryManagementDbContext context, IWebHostEnvironment environment)
         {
             _context = context;
+            _environment = environment;
         }
 
         [HttpGet]
         public async Task<ActionResult<List<Carousel>>> GetAll()
         {
-            return await _context.Carousels.OrderBy(x => x.Order).ToListAsync();
+            return await _context.Carousels.Where(x => x.IsActive).OrderBy(x => x.Order).ToListAsync();
         }
 
         [HttpGet("{id}")]
@@ -87,6 +89,22 @@ namespace LibraryManagementSystem.Controllers
             {
                 return NotFound("This carousel isn't exist in database. Try another id.");
             }
+
+            var filePath = Path.Combine(_environment.WebRootPath, carousel.ImageUrl.TrimStart('/').Replace("/", "\\"));
+
+            try
+            {
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
+            }
+            catch (Exception)
+            {
+
+                throw new Exception("Error occurred while deleting the image file.");
+            }
+            
 
             _context.Carousels.Remove(carousel);
             await _context.SaveChangesAsync();
