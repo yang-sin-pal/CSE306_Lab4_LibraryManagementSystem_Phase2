@@ -50,7 +50,10 @@ namespace LibraryManagementSystem.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var book = await _context.Books.FindAsync(id);
+            var book = await _context.Books
+                .Include(b => b.Category)
+                .Include(b => b.Author)
+                .FirstOrDefaultAsync(b => b.BookId == id);
 
             if (book == null)
             {
